@@ -63,6 +63,10 @@ public abstract class MongoInstance<T> {
         return entity;
     }
 
+    public void removeField(String id, String fieldName) {
+        collection.updateOne(new Document(OBJECT_ID, new ObjectId(id)), new Document("$unset", new Document(fieldName, "")));
+    }
+
     public List<T> find(Document query) {
         List<T> result = new ArrayList();
         for (Document doc : collection.find(query)) {
@@ -72,7 +76,7 @@ public abstract class MongoInstance<T> {
     }
 
     private Document formatObjectId(Document doc) {
-        if (doc.containsKey(OBJECT_ID)) {
+        if (doc != null && doc.containsKey(OBJECT_ID)) {
             doc.append(ID, doc.get(OBJECT_ID).toString()).remove(OBJECT_ID);
         }
 
@@ -92,6 +96,10 @@ public abstract class MongoInstance<T> {
     }
 
     private T getBuilderFromDoc(Document doc) {
+        if (doc == null) {
+            return null;
+        }
+
         Builder builder = null;
 
         try {
